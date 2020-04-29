@@ -17,7 +17,6 @@ site <- read_html(URL)
 pagesVisible <- html_nodes(site,".pages__page") %>% html_text() %>% str_extract_all("\\d{1,9999}",simplify=T)
 pages <- 1:max(as.numeric(pagesVisible))
 
-pages <- 1:2
 #Читаем данные по каждой странице поиска
 publication_data <- foreach(i=pages,.combine='rbind',.errorhandling="remove",.packages=c('rvest','xml2','dplyr','stringr')) %dopar% {
     
@@ -37,8 +36,8 @@ publication_data <- foreach(i=pages,.combine='rbind',.errorhandling="remove",.pa
     
     #Эта функция проверяет есть ли нужная информация, и возвращает NA если её нет
     check_data <- function(x){
-        if(length(x)==0) NA
-        else if(x=="") NA
+        if(length(x)>1) x [1]
+        else if (length(x)==0|x=="") NA
         else x
     }
     
@@ -89,6 +88,3 @@ stopCluster(cl)
 
 # Пишем полученные данные на всякий случай
 write.csv2(publication_data,"publication_data.csv",row.names=FALSE)
-
-
-
