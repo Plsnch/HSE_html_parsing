@@ -18,7 +18,8 @@ pagesVisible <- html_nodes(site,".pages__page") %>% html_text() %>% str_extract_
 pages <- 1:max(as.numeric(pagesVisible))
 
 #Читаем данные по каждой странице поиска
-publication_data <- foreach(i=pages,.combine='rbind',.errorhandling="remove",.packages=c('rvest','xml2','dplyr','stringr')) %dopar% {
+publication_data <- foreach(i=pages,.combine='rbind',.errorhandling="stop",
+                            .packages=c('rvest','xml2','dplyr','stringr','foreach')) %dopar% {
     
     #Подставляем номер страницы поиска
     search_page <- read_html(paste0("https://scr.hse.ru/publications/search/page",
@@ -36,16 +37,14 @@ publication_data <- foreach(i=pages,.combine='rbind',.errorhandling="remove",.pa
     
     #Эта функция проверяет есть ли нужная информация, и возвращает NA если её нет
     check_data <- function(x){
-        if(length(x)>1) x [1]
-        else if (length(x)==0|x=="") NA
+        if(length(x)==0) NA
+        else if(x=="") NA
         else x
     }
     
-    #Общая база, в которую будет подтягиваться информация из цикла
-    publication_info <- NULL
-    
     #Этот цикл проходит по каждой ссылке на публикацию чтобы вытащить оттуда данные (авторы, журнал и т.д.)
-    for(k in link){
+    publication_info <- foreach(k=link,.combine=rbind,.errorhandling="stop",
+                                .packages=c('rvest','xml2','dplyr','stringr')) %do% {
         
         #Читаем страницу публикации
         publication_page <- read_html(k)
@@ -75,12 +74,12 @@ publication_data <- foreach(i=pages,.combine='rbind',.errorhandling="remove",.pa
                                   stringsAsFactors=FALSE,
                                   row.names=NULL)
         
-        publication_info <- rbind(publication_info,parsed_info)
+        return(parsed_info)
         
     }
     
     #Делаем единую базу данных по странице
-    page_data <- data.frame(page_num=i,type=type,title=title,link=link,stringsAsFactors=FALSE,row.names=NULL) %>% 
+    data.frame(page_num=i,type=type,title=title,link=link,stringsAsFactors=FALSE,row.names=NULL) %>% 
         cbind(publication_info)
 }
 
