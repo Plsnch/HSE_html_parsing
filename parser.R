@@ -12,7 +12,7 @@ pagesVisible <- html_nodes(site,".pages__page") %>% html_text() %>% str_extract_
 pages <- 1:max(as.numeric(pagesVisible))
 
 #Читаем данные по каждой странице поиска
-
+#Hello World
 publication_data <- NULL
 
 for(i in pages){
