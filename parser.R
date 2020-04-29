@@ -8,7 +8,8 @@ URL <- "https://scr.hse.ru/publications/?search=15a2d174e97e87863dd28c8cfacb3ee1
 site <- read_html(URL)
 
 #Смотрим сколько страниц есть в поиске
-pages <- html_nodes(site,".pages__page") %>% html_text() %>% str_extract_all("\\d{1,9999}",simplify=T)
+pagesVisible <- html_nodes(site,".pages__page") %>% html_text() %>% str_extract_all("\\d{1,9999}",simplify=T)
+pages <- 1:max(as.numeric(pagesVisible))
 
 #Читаем данные по каждой странице поиска
 
