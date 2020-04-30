@@ -48,41 +48,41 @@ for(i in pages){
         
         #Вытаскиваем мета-параметры, в которых записана информация
         info <- data.frame(name=html_nodes(publication_page,"meta") %>% html_attr("name"),
-                            content=html_nodes(publication_page,"meta") %>% html_attr("content"),
-                            stringsAsFactors = FALSE,
-                            row.names=NULL) %>% 
-                rbind(data.frame(name="ciration_others_title",
-                            content=(html_nodes(publication_page,".pubs-page .pubs-item__info") %>% 
+                           content=html_nodes(publication_page,"meta") %>% html_attr("content"),
+                           stringsAsFactors = FALSE,
+                           row.names=NULL) %>% 
+            rbind(data.frame(name="ciration_others_title",
+                             content=(html_nodes(publication_page,".pubs-page .pubs-item__info") %>% 
                                           html_text())[1] %>% 
-                                          str_remove_all("\n|\t") %>% 
-                                          str_split(",",simplify=T) %>% 
-                                          first())) %>% 
-                rbind(data.frame(name="citation_book_redactors",
+                                 str_remove_all("\n|\t") %>% 
+                                 str_split(",",simplify=T) %>% 
+                                 first())) %>% 
+            rbind(data.frame(name="citation_book_redactors",
                              content=(html_nodes(publication_page,".pubs-page .pubs-item__info") %>% 
                                           html_text())[2] %>% 
-                                          str_remove_all("\n|\t") %>% 
-                                          str_split(":",simplify=T) %>% 
-                                          last() %>% 
-                                          str_replace_all(",",";")))
+                                 str_remove_all("\n|\t") %>% 
+                                 str_split(":",simplify=T) %>% 
+                                 last() %>% 
+                                 str_replace_all(",",";")))
         
         #Вытаскиваем все данные о публикации - автора, журнал, дату, выходные данные, ключевые слова
         parsed_info <- data.frame(authors=ifelse(grep("citation_author",info$name) %>% length()!=0,
                                                  paste(info$content[which(info$name=="citation_author")],collapse="; "),
                                                  info$content[which(info$name=="citation_book_redactors")]),
                                   source=c(info$content[which(info$name=="citation_journal_title")],
-                                            info$content[which(info$name=="citation_inbook_title")],
+                                           info$content[which(info$name=="citation_inbook_title")],
                                            info$content[which(info$name=="ciration_others_title")])[1],
                                   date=info$content[which(info$name=="citation_publication_date")] %>% check_data(),
                                   issue=info$content[which(info$name=="citation_issue")] %>% check_data(),
                                   volume=info$content[which(info$name=="citation_volume")] %>% check_data(),
                                   pages=paste(c(info$content[which(info$name=="citation_firstpage")],
                                                 info$content[which(info$name=="citation_lastpage")]),
-                                                collapse=" - ") %>% check_data(),
+                                              collapse=" - ") %>% check_data(),
                                   doi=info$content[which(info$name=="citation_doi")] %>% check_data(),
                                   keywords=info$content[which(info$name=="citation_keywords")] %>% check_data(),
                                   stringsAsFactors=FALSE,
                                   row.names=NULL)
-       
+        
         publication_info <- rbind(publication_info,parsed_info)
         
     }
@@ -97,6 +97,3 @@ for(i in pages){
 
 # Пишем полученные данные на всякий случай
 write.csv2(publication_data,"publication_data.csv",row.names=FALSE)
-
-check <- publication_data %>% 
-    filter(is.na(authors))
