@@ -1,4 +1,5 @@
 library("XML")
+library("rlist")
 
 # записываем несколько скачанных html файлов в лист
 temp <- list.files(pattern="*toread.html")
