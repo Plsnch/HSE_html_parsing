@@ -1,6 +1,6 @@
 library("tibble")
 
-publication_data <- read.csv("publicationData.csv")
+publication_data <- read.csv("publication_data.csv")
 
 # Читаем доступные базы данных по квартилям
 wos_data <- read.csv2("wosDB.csv", stringsAsFactors = FALSE)
@@ -44,7 +44,7 @@ for (j in 1:length(publication_data$title)) {
 }
 
 # пишем в файл
-write.csv2(publication_data, "publicationDataQ.csv", row.names = FALSE, fileEncoding = "UTF-8")
+write.csv2(publication_data, "publication_data_with_quartile.csv", row.names = FALSE, fileEncoding = "UTF-8")
 
 
 
